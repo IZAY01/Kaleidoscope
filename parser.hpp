@@ -1,0 +1,33 @@
+class ExprAST {
+public:
+    virtual ~ExprAST();
+};
+
+
+class NumberExprAST : public ExprAST {
+    double Val;
+
+public:
+    NumberExprAST(double Val) : Val(Val) {}
+};
+
+
+class VariableExprAST : public ExprAST {
+    std::string Name;
+
+public
+    VariableExprAST(const std::string &Name) : Name(Name) {}
+};
+
+
+class BinaryExprAST : public ExprAST {
+    char Op;
+    std::unique_ptr<ExprAST> LHS, RHS;
+
+public:
+    BinaryExprAST(char op, std::unique_ptr<ExprAST> LHS, std::unique_ptr<ExprAST> RHS)
+        : Op(op), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
+};
+
+
+
