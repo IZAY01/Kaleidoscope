@@ -15,12 +15,12 @@
 
 
 enum Token {
-    tok_eof = -1;
-    tok_def = -2;
-    tok_extern = -3;
-    tok_identifier = -4;
-    tok_number = -5;
-}
+    tok_eof = -1,
+    tok_def = -2,
+    tok_extern = -3,
+    tok_identifier = -4,
+    tok_number = -5
+};
 
 static std::string IdentifierStr;
 static double NumVal;
@@ -34,12 +34,12 @@ static int gettok() {
         IdentifierStr = LastChar;
         while(isalnum((LastChar = getchar())))  IdentifierStr += LastChar;
 
-        if(IdentifierStr = "def")   return tok_def;
-        if(IdentifierStr = "extern")    return tok_extern;
+        if(IdentifierStr == "def")   return tok_def;
+        if(IdentifierStr == "extern")    return tok_extern;
         return tok_identifier;
     }
 
-    if(isdigit(LastChar) || LastChar = '.') {
+    if(isdigit(LastChar) || LastChar == '.') {
         std::string NumStr;
         do {
             NumStr += LastChar;
@@ -120,7 +120,7 @@ class FunctionAST {
     std::unique_ptr<ExprAST> Body;
 public:
     FunctionAST(std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> Body)
-        : Proto(std::move(Proto), Body(std::move(Body))) {}
+        : Proto(std::move(Proto)), Body(std::move(Body)) {}
 };
 
 }
@@ -225,7 +225,7 @@ static std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec, std::unique_ptr<Expr
 
         int NextPrec = GetTokPrecedence();
         if(TokPrec < NextPrec) {
-            RHS = ParseBinOpRHS(TokPrec + 1, std:move(RHS));
+            RHS = ParseBinOpRHS(TokPrec + 1, std::move(RHS));
             if(!RHS)    return nullptr;
         }
 
@@ -255,7 +255,7 @@ static std::unique_ptr<PrototypeAST> ParsePrototype() {
     
     getNextToken();
 
-    return std::make_unique<PrototypeAST>(FnNamem std::move(ArgNames));
+    return std::make_unique<PrototypeAST>(FnName, std::move(ArgNames));
 }
 
 static std::unique_ptr<FunctionAST> ParseDefinition() {
@@ -270,7 +270,7 @@ static std::unique_ptr<FunctionAST> ParseDefinition() {
 
 static std::unique_ptr<FunctionAST> ParseTopLevelExpr() {
     if(auto E = ParseExpression()) {
-        auto Proto = std::make_unique<PrototypeAST>("__anon_expr", std::vector<std::string>>());
+        auto Proto = std::make_unique<PrototypeAST>("__anon_expr", std::vector<std::string>());
         return std::make_unique<FunctionAST>(std::move(Proto), std::move(E));
     }
     return nullptr;
