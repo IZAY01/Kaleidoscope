@@ -285,3 +285,70 @@ static std::unique_ptr<PrototypeAST> ParseExtern() {
 //===----------------------------------------------------------------------===//
 // Top-Level parsing
 //===----------------------------------------------------------------------===//
+
+
+static void HandleDefinition() {
+    if(ParseDefinition()) {
+        fprintf(stderr, "Parsed a function definition.\n");
+    } else {
+        getNextToken();
+    }
+}
+
+static void HandleExtern() {
+    if(ParseExtern()) {
+        fprintf(stderr, "Parsed a extern\n");
+    } else {
+        getNextToken();
+    }
+}
+
+static void HandleTopLevelExpression() {
+  if (ParseTopLevelExpr()) {
+    fprintf(stderr, "Parsed a top-level expr\n");
+  } else {
+    getNextToken();
+  }
+}
+
+static void MainLoop() {
+    while(true) {
+        fprintf(stderr, ">>> ");
+        switch(CurTok) {
+            case tok_eof:
+                return;
+            case ';':
+                getNextToken();
+                break;
+            case tok_def:
+                HandleDefinition();
+                break;
+            case tok_extern:
+                HandleExtern();
+                break;
+            default:
+                HandleTopLevelExpression();
+                break;
+        }
+    }
+}
+
+
+//===----------------------------------------------------------------------===//
+// Main driver code.
+//===----------------------------------------------------------------------===//
+
+
+int main() {
+    BinopPrecedence['<'] = 10;
+    BinopPrecedence['+'] = 20;
+    BinopPrecedence['-'] = 20;
+    BinopPrecedence['*'] = 40;
+
+    fprintf(stderr, ">>> ");
+    getNextToken();
+
+    MainLoop();
+
+    return 0;
+}
