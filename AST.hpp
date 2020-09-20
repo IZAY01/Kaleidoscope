@@ -88,17 +88,61 @@ class ForExprAST : public ExprAST {
 
 
 class VarExprAST : public ExprAST {
-    
+    std::vector< std::pair<std::string, std::unique_ptr<ExprAST>> > VarNames;
+    std::unique_ptr<ExprAST> Body;
+
+    public:
+    VarExprAST(std::vector< std::pair<std::string, std::unique_ptr<ExprAST>> > VarNames,
+               std::unique_ptr<ExprAST> Body)
+        : VarNames(std::move(VarNames)), Body(std::move(Body)) {}
+    Value *codegen() override;
 };
 
 
 class PrototypeAST {
+    std::string Name;
+    std::vector<std::string> Args;
+    bool IsOperator;
+    unsigned Precedence;
 
+    public:
+    PrototypeAST(const std::string &Name,
+                 std::vector<std::string> Args,
+                 bool IsOperator = false,
+                 unsigned Prec = 0)
+        : Name(Name), Args(std::move(Args)), IsOperator(IsOperator), Precedence(Prec) {}
+
+    Function *codegen();
+    const std::string &getName() const {
+        return Name;
+    }
+
+    bool isUnaryOp() const {
+        return IsOperator && Args.size() == 1;
+    }
+    bool isBinaryOp() const {
+        return IsOperator && Args.size() == 2;
+    }
+
+    char getOperatorName() const {
+        assert(isUnaryOp() || isBinaryOp());
+        return Name[Name.size() - 1];
+    }
+
+    unsigned getBinaryPrecedence() const {
+        return Precedence;
+    }
 };
 
 
 class FunctionAST {
+    std::unique_ptr<PrototypeAST> Proto;
+    std::unique_ptr<ExprAST> Body;
 
+    public:
+    FunctionAST(std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> Body) 
+        : Proto(std::move(Proto)), Body(std::move(Body)) {}
+    Function *codegen();
 };
 
 
